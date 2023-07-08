@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 607405909}
   - component: {fileID: 607405908}
+  - component: {fileID: 607405910}
   m_Layer: 0
   m_Name: Camera Swivel
   m_TagString: Untagged
@@ -151,7 +152,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1
+  m_Radius: 22.4
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &607405909
 Transform:
@@ -162,13 +163,29 @@ Transform:
   m_GameObject: {fileID: 607405907}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 963194228}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &607405910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 607405907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbea269cb22125d4697044ba784a6834, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridController: {fileID: 1011507586}
+  strength: 0.4
+  size: 0
+  radius: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,7 +357,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalPosition: {x: 0, y: 0, z: -16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -373,8 +390,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1011507586}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 8, y: 8, z: 8}
+  m_LocalPosition: {x: 0, y: 8, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -393,14 +410,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentInDeath: {fileID: 1699283146}
-  elementDropSpeed: 0.75
+  voxelDropSpeed: 1
   rocks:
-  - {fileID: 5398660515823044601, guid: f9fb419704948f14eb824f6f8a25160d, type: 3}
-  - {fileID: 6825235079687061820, guid: c052e75bc2140ef44a679e29571c2386, type: 3}
-  - {fileID: 795107966643220953, guid: c526248e1fb45cc45800f725e41ba440, type: 3}
-  - {fileID: 4777573040138325906, guid: 85646c03583a81e47bb315de6ee5cc9b, type: 3}
   - {fileID: 1731344679491142983, guid: 42250c5b3dba7f74e95dce6bea085161, type: 3}
-  waters: []
+  - {fileID: 795107966643220953, guid: c526248e1fb45cc45800f725e41ba440, type: 3}
+  - {fileID: 6825235079687061820, guid: c052e75bc2140ef44a679e29571c2386, type: 3}
+  - {fileID: 5398660515823044601, guid: f9fb419704948f14eb824f6f8a25160d, type: 3}
+  - {fileID: 4777573040138325906, guid: 85646c03583a81e47bb315de6ee5cc9b, type: 3}
+  waters:
+  - {fileID: 6684722352123280558, guid: 019fc3449b21da845b17bc70699c265d, type: 3}
+  current: {fileID: 0}
+  pillarCount: 0
 --- !u!114 &1011507589
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -413,10 +433,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7255c01a9880e1245b42badcf02b9ad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  x: 0
-  y: 0
-  z: 0
-  blockCooldown: 0.3
+  size: 16
+  x: 8
+  y: 8
+  z: 8
+  blockDropCooldown: 0.3
+  gravityCooldown: 0.5
   moveCooldown: 0.5
 --- !u!1 &1699283146
 GameObject:
@@ -442,7 +464,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1699283146}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 4, y: 4, z: 4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -3,97 +3,81 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class controller : MonoBehaviour {
+public class Controller : MonoBehaviour {
 
-    public float x = 0, y=0, z = 0;
-    public static bool update = true;
-    public float blockCooldown = 0.3f;
+    public int size = 16;
+    float cursorX,cursorZ;
+    public float x,y,z;
+    public float blockDropCooldown = 0.3f;
+    public float gravityCooldown = 0.1f;
     public float moveCooldown = 0.075f;
     ElementGenerator generator;
-    ElementBlock[]? pillars = new ElementBlock[4];
-    private float cd_blockDrop;
+    private float cd_gravity;
     private float cd_move;
+
+    private bool running = false;
+    private bool update = false;
     List<Vector3> v3Line;
 
-    private bool running=false;
-
+    public VoxelPillar voxelPillars
+    int frozenVoxels = 0;
     float m;
     // Start is called before the first frame update
     void Start() {
+        NodeRules.gridHalfLength = Vector3.one*size/2;
+        y = m = size;
+        cursorX = m/2; 
+        cursorZ = m/2;
         generator = gameObject.GetComponent<ElementGenerator>();
-        NodeRules.gridSize = transform.localScale/2;
-        m = NodeRules.gridSize.x;
-        y = m;
-        v3Line = getSelectionLineVectors();
-        
-        cd_blockDrop = Time.time + blockCooldown;
+        generator.Activate();
         running = true;
     }
 
     void Update() {
-        
-        if (Input.GetKey(KeyCode.A) && Time.time >= cd_move) {
-            x++;
+        if(Time.time >= cd_move) {
+            if      (Input.GetKey(KeyCode.A)) cursorX++;
+            else if (Input.GetKey(KeyCode.D)) cursorX--;
+            else if (Input.GetKey(KeyCode.W)) cursorZ++;
+            else if (Input.GetKey(KeyCode.S)) cursorZ--;
             cd_move = Time.time + moveCooldown;
         }
-        if (Input.GetKey(KeyCode.D) && Time.time >= cd_move) {
-            x--;
-            cd_move = Time.time + moveCooldown;
-        }
-        if (Input.GetKey(KeyCode.W) && Time.time >= cd_move) {
-            z++;
-            cd_move = Time.time + moveCooldown;
-        }
-        if (Input.GetKey(KeyCode.S) && Time.time >= cd_move) {
-            z--;
-            cd_move = Time.time + moveCooldown;
-        }
-        Math.Clamp(x, -m, m);
-        Math.Clamp(y, -m, m);
-        Math.Clamp(z, -m, m);
+        cursorX = Math.Clamp(cursorX, 0, size);
+        cursorZ = Math.Clamp(cursorZ, 0, size);
 
-        
-        
-        if (cd_blockDrop == Mathf.Infinity || pillars == null) {
-            generator.dropBlock2(new Vector3(x, y, z));
+        if (ElementGenerator.currentPillars.Length == 0) {
+            Destroy(generator.current.gameObject);
+            generator.dropPillarGroup(new Vector3(cursorX-NodeRules.gridHalfLength.x+.5f, y, cursorZ - NodeRules.gridHalfLength.x + .5f));
+            cd_gravity = Time.time + gravityCooldown;
+        } 
+        else if (Time.time >= cd_gravity) {
+            Queue<ElementBlock> newPillars = new Queue<ElementBlock>();
+            foreach(ElementBlock pillar in ElementGenerator.currentPillars) {
+                int i = (int)(pillar.transform.position.x+cursorX + size * pillar.transform.position.z + cursorZ);
+                if (pillar.transform.position.y <= ElementGenerator.heightMap[i]) {
+                    ElementGenerator.heightMap[i] = pillar.pillarHeight + (int)pillar.transform.position.y;
+                    var voxels = pillar.GetComponentsInChildren<Transform>();
+                    pillar.freeze(generator.parentInDeath);
 
-            pillars = pillars.getPillars(); 
-
-            cd_blockDrop = Time.time + blockCooldown;
+                    frozenVoxels += pillar.pillarHeight;
+                } else
+                    newPillars.Enqueue(pillar);
+            }
+            ElementGenerator.currentPillars = newPillars.ToArray();
+            generator.current.transform.Translate(Vector3.down, Space.Self);
+            cd_gravity = Time.time + gravityCooldown;
         }
-        if (Time.time >= cd_blockDrop && ElementBlock.children.Count != 0)
-            cd_blockDrop = pillars.refresh();
-
     }
 
     private void FixedUpdate() {
         update = true;
-    }
+        while (frozenVoxels > 0) {
+            frozenVoxels--;
 
-    void generateNodes() {
-        int arraySize = (int)(transform.lossyScale.x * transform.lossyScale.y * transform.lossyScale.z);
-
-        Vector3 pos = new Vector3(0, 10, 0);
-        Debug.Log(NodeRules.conditions["rock"](pos));
-
-    }
-
-    List<Vector3> getSelectionLineVectors() {
-        int offset = 1;
-        v3Line = new List<Vector3>();
-        v3Line.Add(new Vector3(-m, y, z));
-        v3Line.Add(new Vector3(m, y, z));
-        v3Line.Add(new Vector3(-m, y, z + offset));
-        v3Line.Add(new Vector3(m, y, z + offset));
-        v3Line.Add(new Vector3(x, y, -m));
-        v3Line.Add(new Vector3(x, y, m));
-        v3Line.Add(new Vector3(x + offset, y, -m));
-        v3Line.Add(new Vector3(x + offset, y, m));
-        return v3Line;
+        }
     }
 
     void OnDrawGizmos() {
-        Gizmos.DrawWireCube(transform.position, transform.lossyScale);
+        Gizmos.DrawWireCube(transform.position, Vector3.one*size);
         if (update) {
             Gizmos.color = new Color(.65f, .65f, .65f, .9f);
             v3Line = getSelectionLineVectors();
@@ -106,33 +90,36 @@ public class controller : MonoBehaviour {
             Gizmos.DrawLine(v3Line[6], v3Line[7]);
         }
     }
-}
 
-struct Voxel {
-    bool flushed;
-    Vector3 pos;
-    Color rgba;
-    Voxel(Vector3 p, Color col) {
-        flushed = false;
-        pos = p;
-        rgba = col;
+    public List<Vector3> getSelectionLineVectors() {
+        int offset = 1,halfLen=(int)NodeRules.gridHalfLength.x;
+
+        v3Line = new List<Vector3>();
+
+        v3Line.Add(new Vector3(-halfLen, y, cursorZ-halfLen));
+        v3Line.Add(new Vector3(halfLen, y, cursorZ-halfLen));
+        v3Line.Add(new Vector3(-halfLen, y, cursorZ-halfLen + offset));
+        v3Line.Add(new Vector3(halfLen, y, cursorZ-halfLen + offset));
+        v3Line.Add(new Vector3(cursorX-halfLen, y, -halfLen));
+        v3Line.Add(new Vector3(cursorX-halfLen, y, halfLen));
+        v3Line.Add(new Vector3(cursorX-halfLen + offset, y, -halfLen));
+        v3Line.Add(new Vector3(cursorX-halfLen + offset, y, halfLen));
+        return v3Line;
     }
-}
-struct Mana {
-    Vector3 pos;
-    Color rgba;
-    Mana(Vector3 p, Color col) {
-        pos = p;
-        rgba = col;
-    }
+
 }
 
 public static class NodeRules {
-    public static Vector3 gridSize;
+    public static Vector3 gridHalfLength;
 
     public static Dictionary<string, Predicate<Vector3>> conditions = new Dictionary<string, Predicate<Vector3>>(){
-        {"air", pos => pos.y > (gridSize.y*0.6f) },
-        {"rock", pos => pos.y < (gridSize.y*0.4f) }
+        {"air", pos => pos.y > (gridHalfLength.y*0.6f) },
+        {"rock", pos => pos.y < (gridHalfLength.y*0.4f) }
     };
 }
 
+struct VoxelPillar {
+    public string material;
+    Queue<Dictionary<int, Tuple<int, int>>> voxelVectors;
+    Transform[] voxels;
+}

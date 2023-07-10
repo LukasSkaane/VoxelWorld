@@ -56,9 +56,10 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Controller.cs" />
-    <Compile Include="Assets\ElementGenerator.cs" />
     <Compile Include="Assets\CameraController.cs" />
+    <Compile Include="Assets\MainController.cs" />
+    <Compile Include="Assets\Generator.cs" />
+    <Compile Include="Assets\WorldController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

@@ -1,0 +1,10 @@
+Temp/
+ .gitignore
+.vs/
+.vsconfig
+Library/
+Logs/
+Packages/
+ProjectSettings/
+UserSettings/
+obj/

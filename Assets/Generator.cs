@@ -29,6 +29,7 @@ public enum Elements : int { ROCK = 0, WATER = 1, AIR = 2, FIRE = 4 };
             Transform child = current.transform.GetChild(i);
             Pillar eb = child.gameObject.AddComponent<Pillar>();
             eb.pillarHeight = (child.childCount>0) ? child.childCount : 1;
+            //Debug.Log(child.name + " - " + eb.pillarHeight);
             pillars[i] = eb;
         }   
         return pillars;
@@ -43,22 +44,14 @@ public enum Elements : int { ROCK = 0, WATER = 1, AIR = 2, FIRE = 4 };
 
 public class Pillar : MonoBehaviour {
     public int pillarHeight;
-    public void freeze(GameObject newParent) {
+    public void freeze() {
         if (transform.name == "pillar") {
-            for (int i = 0; i < transform.childCount; i++) {
-                Debug.Log(transform.GetChild(i).name);
-                transform.GetChild(i).parent = newParent.transform;
-            }
-        } else
-            transform.parent = newParent.transform;
-
+            Transform[] children = transform.gameObject.GetComponentsInChildren<Transform>();
+            foreach(Transform obj in children) 
+                obj.parent = transform.parent;            
+        } 
     }
     public Transform[] getVoxelTransforms() {
-        Transform[] voxels;
-        if (transform.name == "pillar") 
-            voxels = transform.GetComponentsInChildren<Transform>();
-        else 
-            voxels = new Transform[1] { transform};
-        return voxels;
+        return (transform.name != "pillar") ? new Transform[1] { transform } : transform.GetComponentsInChildren<Transform>();
     }
 }

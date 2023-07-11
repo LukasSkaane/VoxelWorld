@@ -12,7 +12,7 @@ public class CameraController : MonoBehaviour {
     void Start() {
         size = gridController.GetComponent<MainController>().size/2;
         radius = transform.GetComponent<SphereCollider>().radius = size*1.6f;
-        transform.position = new Vector3(0, size, 0);
+        transform.position = new Vector3(size, size, size);
         transform.GetChild(0).transform.Translate(Vector3.back*radius, Space.Self);
     }
 

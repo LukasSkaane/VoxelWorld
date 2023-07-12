@@ -19,10 +19,10 @@ public enum Elements : int { ROCK = 0, WATER = 1, AIR = 2, FIRE = 4 };
         elem_groups.Add((int)Elements.ROCK, rocks);
         elem_groups.Add((int)Elements.WATER, waters);
     }
-    public Pillar[] dropPillarGroup(Vector3 pos, ref GameObject current) {
+    public List<Pillar> dropPillarGroup(Vector3 pos, ref GameObject current) {
         int pillarCount = new();
         current = Instantiate(getRandomGroup(ref pillarCount), pos, Quaternion.identity);
-        Pillar[] pillars = new Pillar[pillarCount];
+        List<Pillar> pillars = new();
         current.transform.parent = transform;
 
         for (int i = 0; i <pillarCount; i++) {
@@ -50,12 +50,12 @@ public enum Elements : int { ROCK = 0, WATER = 1, AIR = 2, FIRE = 4 };
 
 public class Pillar : MonoBehaviour {
     public int pillarHeight;
-    public void freeze() {
+    public void freeze(Transform parent) {
         if (transform.name == "pillar") {
-            Transform[] children = transform.gameObject.GetComponentsInChildren<Transform>();
-            foreach(Transform obj in children) 
-                obj.parent = transform.parent;            
-        } 
+            foreach (Transform obj in transform.gameObject.GetComponentsInChildren<Transform>())
+                obj.parent = parent;
+        } else
+            transform.parent = parent;
     }
     public Transform[] getVoxelTransforms() {
         return (transform.name != "pillar") ? new Transform[1] { transform } : transform.GetComponentsInChildren<Transform>();

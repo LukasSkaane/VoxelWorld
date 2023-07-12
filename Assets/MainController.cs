@@ -14,8 +14,8 @@ public class MainController : MonoBehaviour {
     public float moveCooldown = 0.075f;
     public Vector3 cursor;
 
-    Vector3 velocity;
     private float cursorX=0,cursorY, cursorZ=0;
+    private float prevCursorX, prevCursorZ;
     private bool running = false;
     private bool update = false;
     private float cd_gravity;
@@ -28,46 +28,43 @@ public class MainController : MonoBehaviour {
         
         world.Activate(size);
         generator.Activate();
-        cursorX = cursorZ = 0;
+        cursorX = cursorZ = prevCursorX = prevCursorZ = WorldController.halfLength;
         cursorY = size;
         yOffset = size;
         running = true;
     }
 
     void Update() {
-        float prevCursorX = cursorX, prevCursorZ = cursorZ;
+        
+        prevCursorX = cursorX;
+        
+        prevCursorZ = cursorZ;
         takeInputs();
 
-        cursorX = Math.Clamp(cursorX, -1, 1);
-        cursorZ = Math.Clamp(cursorZ, -1, 1);
-        Vector3 newPos = new(cursorX, cursorY, cursorZ);
-        if (velocity == Vector3.zero && (cursorX != 0 || cursorZ != 0))
-            velocity = new(cursorX, -1, cursorZ);
-        //if (!world.getHeightMapOccupiedAt(newPos)) {
-        //    cursorX = prevCursorX; 
-        //    cursorZ = prevCursorZ;
-        //}            
+        cursorX = Math.Clamp(cursorX, 0, WorldController.worldSize);
+        cursorZ = Math.Clamp(cursorZ, 0, WorldController.worldSize);
+        prevCursorX = Math.Clamp(prevCursorX, 0, WorldController.worldSize);
+        prevCursorZ = Math.Clamp(prevCursorZ, 0, WorldController.worldSize);
+        Vector3 newPos = new(cursorX, cursorY,cursorZ);
 
-        Debug.Log(velocity);
+        //if(cursorX!=prevCursorX || cursorZ != prevCursorZ)
+        //    Debug.Log(velocity + ", " + cursorX + ", " + prevCursorX + ", " + cursorZ + ", " + prevCursorZ);
         if (Time.time >= cd_gravity) {
             cd_gravity = Time.time + gravityCooldown;
             cursorY--;
-            if (world.currentPillars.Length == 0) {
+            //Debug.Log(new Vector2(cursorX, cursorZ) + "," + new Vector2(prevCursorX, prevCursorZ));
+            if (world.currentPillars.Count == 0) {
                 cursorY = size + 4;
                 newPos = new Vector3(newPos.x, cursorY, newPos.z);
                 world.currentPillars = generator.dropPillarGroup(newPos, ref world.current);
             }
-            world.updatePillars(newPos, ref velocity);
-            newPos = Vector3.zero;
+            world.updatePillarGroup(newPos);
         }
+        world.flushFreezeBuffer();
     }
 
     private void FixedUpdate() {
         update = true;
-        while (world.frozenVoxelsBufferLength > 0) {
-            world.frozenVoxelsBufferLength--;
-
-        }
     }
 
     private void takeInputs() {
@@ -107,6 +104,11 @@ public class MainController : MonoBehaviour {
                     }
                 }
 
+                Gizmos.color = new Color(.65f, .65f, .65f, .9f);
+            }
+            if (WorldController.drawLastCollision) {
+                Gizmos.color = new Color(.1f, .3f, .7f, .45f);
+                Gizmos.DrawCube(WorldController.collisionDebugCube.transform.position, Vector3.one*1.1f);
                 Gizmos.color = new Color(.65f, .65f, .65f, .9f);
             }
         }

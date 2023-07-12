@@ -10,6 +10,7 @@ public enum Elements : int { ROCK = 0, WATER = 1, AIR = 2, FIRE = 4 };
 
     Dictionary<int, GameObject[]> elem_groups;
     public GameObject[] rocks;
+    public GameObject rock_plate;
     public GameObject[] waters;
     static public Pillar[] currentPillars;
 
@@ -19,24 +20,39 @@ public enum Elements : int { ROCK = 0, WATER = 1, AIR = 2, FIRE = 4 };
         elem_groups.Add((int)Elements.ROCK, rocks);
         elem_groups.Add((int)Elements.WATER, waters);
     }
+
+    public int[] generateStartWorld(Transform transformParent) {
+        int[] map = new int[WorldController.worldSize * WorldController.worldSize];
+        GameObject obj;
+        for (int i = 0; i < map.Length;) {
+            int x = (i % WorldController.worldSize);
+            int z = (i / WorldController.worldSize);
+            if (x % 4 == 0 && z % 4 == 0) {
+                obj = Instantiate(rock_plate, this.transform.position + new Vector3(x, 0, z), Quaternion.identity);
+                obj.transform.parent = transformParent;
+            }
+            i++;
+        }
+        return map;
+    }
+
     public List<Pillar> dropPillarGroup(Vector3 pos, ref GameObject current) {
         int pillarCount = new();
         current = Instantiate(getRandomGroup(ref pillarCount), pos, Quaternion.identity);
         List<Pillar> pillars = new();
         current.transform.parent = transform;
+        
 
         for (int i = 0; i <pillarCount; i++) {
-            Transform child = current.transform.GetChild(i);
-            Pillar eb = child.gameObject.AddComponent<Pillar>();
+            pillars.Add(current.transform.GetChild(i).gameObject.AddComponent<Pillar>());
 
-            if (WorldController.depth < child.localPosition.z+1)
-                WorldController.depth = (int)child.localPosition.z+1;
-            if (WorldController.width < child.localPosition.x+1)
-                WorldController.width = (int)child.localPosition.x+1;
+            if (WorldController.depth < pillars[i].transform.localPosition.z+1)
+                WorldController.depth = (int)pillars[i].transform.localPosition.z+1;
+            if (WorldController.width < pillars[i].transform.localPosition.x+1)
+                WorldController.width = (int)pillars[i].transform.localPosition.x+1;
 
-            eb.pillarHeight = (child.childCount>0) ? child.childCount : 1;
+            pillars[i].pillarHeight = (pillars[i].transform.childCount>0) ? pillars[i].transform.childCount : 1;
             //Debug.Log(child.name + " - " + eb.pillarHeight);
-            pillars[i] = eb;
         }
         return pillars;
     }

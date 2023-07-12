@@ -17,64 +17,42 @@ public class WorldController : MonoBehaviour{
     public int frozenVoxelsBufferLength;
     public Dictionary<Vector2, Queue<Transform>> voxelPillars;
     public static int depth=1, width=1;
-    public GameObject rock_plate;
     public GameObject current;
-    public Pillar[] currentPillars;
-    public List<Vector3> currentPillarPos;
+    public List < Pillar > currentPillars;
     public Queue<GameObject> pillarFreezeBuffer;
 
     public void Activate(int worldSize) {
         WorldController.worldSize = worldSize;
         halfLength = worldSize / 2;
-        rockHeightMap = generateStartWorld();
         collisionDebugCube = new GameObject();
         //rockHeightMap = new int[worldSize * worldSize];
         voxelPillars = new();
         pillarFreezeBuffer = new();
-        currentPillars = new List<Pillar>();
+        currentPillars = new();
         current = new();
         current.transform.position = new(halfLength, worldSize, halfLength);
     }
     public void updatePillarGroup(Vector3 nextPos) {
         Vector3 velocity = current.transform.position-nextPos;
         Vector3 nextPillarPos;
-        Queue<Pillar> nextPillars = new();
         int collision;
         Vector3[] pillarPositions = new Vector3[width*depth];
-        for(int i =0; i < pillarPositions.Length; i++) {
+
+        for(int i=0; i < pillarPositions.Length; i++) {
             collision = evalPillarTrajectoryCollision(currentPillars[i].transform.position, ref velocity);
             nextPillarPos = currentPillars[i].transform.position - velocity;
-            if (collision != (int)CollisionConsts.NO_COLLISION) Debug.Log((collision > 1) ? "Bottom hit, freezing pillar at " : "Wall collided with by pillar at " +
-                                                                          nextPillarPos);
+            //if (collision != (int)CollisionConsts.NO_COLLISION) Debug.Log((collision > 1) ? "Bottom hit, freezing pillar at " : "Wall collided with by pillar at " +
+            //                                                              nextPillarPos);
             int h = getHeightmapAt(nextPillarPos);
             if(collision == (int)CollisionConsts.VERT_COLLISION) {
-                rockHeightMap[h] = currentPillars[i].pillarHeight + (int)currentPillars[i].transform.position.y;
+                rockHeightMap[h] = currentPillars[i].pillarHeight + (int)currentPillars[i].transform.position.y -((currentPillars[i].pillarHeight!=1)?0:1);
                 pillarFreezeBuffer.Enqueue(currentPillars[i].gameObject);
                 currentPillars.RemoveAt(i);
             }
         }
-
-        foreach (Pillar pillar in currentPillars) {
-            collision = evalPillarTrajectoryCollision(pillar.transform.position, ref velocity);
-            nextPillarPos = pillar.transform.position - velocity;
-            if (collision != (int)CollisionConsts.NO_COLLISION) Debug.Log((collision>1) ? "Bottom hit, freezing pillar at " : "Wall collided with by pillar at " +
-                                                                          nextPillarPos);
-            
-            int i = getHeightmapAt(nextPillarPos);
-            //Debug.Log(rockHeightMap[i] + ",   " + nextPillarPos.y);
-            if (collision == (int)CollisionConsts.VERT_COLLISION) {
-                rockHeightMap[i] = pillar.pillarHeight + (int)(pillar.transform.position.y);
-                pillarFreezeBuffer.Enqueue(pillar.gameObject);
-            } else
-                nextPillars.Enqueue(pillar);
-        }
-
-        Pillar[] pillars = nextPillars.ToArray();
-        currentPillars = pillars;
         current.transform.position -= velocity;
         if (currentPillars.Count == 0) {
             Debug.Log("Destroying Current");
-            currentPillars = new Pillar[0];
             Destroy(current.gameObject);
         }
     }
@@ -114,18 +92,5 @@ public class WorldController : MonoBehaviour{
     private int getPosIndex(Vector2 pos) { return (int)(pos.x + worldSize * pos.y); }
     private int getHeightmapAt(Vector3 pos) { return (int)(pos.x + worldSize * pos.z); }
 
-    private int[] generateStartWorld() {
-        int[] map = new int[worldSize*worldSize];
-        GameObject obj;
-        for (int i = 0; i < map.Length;) {
-            int x = (i%worldSize);
-            int z = (i/worldSize);
-            if (x % 4 == 0 && z % 4 == 0) {
-                obj = Instantiate(rock_plate, this.transform.position + new Vector3(x, 0, z), Quaternion.identity);
-                obj.transform.parent = this.transform;
-            }
-            i++;
-        }
-        return map;
-    }
+    
 }

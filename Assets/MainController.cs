@@ -28,6 +28,7 @@ public class MainController : MonoBehaviour {
         
         world.Activate(size);
         generator.Activate();
+        WorldController.rockHeightMap = generator.generateStartWorld(world.transform);
         cursorX = cursorZ = prevCursorX = prevCursorZ = WorldController.halfLength;
         cursorY = size;
         yOffset = size;
@@ -52,14 +53,15 @@ public class MainController : MonoBehaviour {
         if (Time.time >= cd_gravity) {
             cd_gravity = Time.time + gravityCooldown;
             cursorY--;
-            //Debug.Log(new Vector2(cursorX, cursorZ) + "," + new Vector2(prevCursorX, prevCursorZ));
-            if (world.currentPillars.Count == 0) {
-                cursorY = size + 4;
-                newPos = new Vector3(newPos.x, cursorY, newPos.z);
-                world.currentPillars = generator.dropPillarGroup(newPos, ref world.current);
-            }
-            world.updatePillarGroup(newPos);
         }
+        //Debug.Log(new Vector2(cursorX, cursorZ) + "," + new Vector2(prevCursorX, prevCursorZ));
+        if (world.currentPillars.Count == 0) {
+            cursorY = size + 4;
+            newPos = new Vector3(newPos.x, cursorY, newPos.z);
+            world.currentPillars = generator.dropPillarGroup(newPos, ref world.current);    
+        }
+        world.updatePillarGroup(newPos);
+        
         world.flushFreezeBuffer();
     }
 

@@ -8,7 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{D9F62572-7303-981C-5FD4-E41850EEDF86}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -58,8 +59,8 @@
   <ItemGroup>
     <Compile Include="Assets\CameraController.cs" />
     <Compile Include="Assets\MainController.cs" />
-    <Compile Include="Assets\Generator.cs" />
     <Compile Include="Assets\WorldController.cs" />
+    <Compile Include="Assets\Generator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -763,6 +764,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\Screenshot 2023-07-10 221007.png" />
+    <Content Include="Images\Screenshot 2023-07-10 221021.png" />
+    <Content Include="Images\Screenshot 2023-07-11 001326.png" />
+    <Content Include="Images\Screenshot 2023-07-11 182622.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

@@ -28,10 +28,16 @@ public enum Elements : int { ROCK = 0, WATER = 1, AIR = 2, FIRE = 4 };
         for (int i = 0; i <pillarCount; i++) {
             Transform child = current.transform.GetChild(i);
             Pillar eb = child.gameObject.AddComponent<Pillar>();
+
+            if (WorldController.depth < child.localPosition.z+1)
+                WorldController.depth = (int)child.localPosition.z+1;
+            if (WorldController.width < child.localPosition.x+1)
+                WorldController.width = (int)child.localPosition.x+1;
+
             eb.pillarHeight = (child.childCount>0) ? child.childCount : 1;
             //Debug.Log(child.name + " - " + eb.pillarHeight);
             pillars[i] = eb;
-        }   
+        }
         return pillars;
     }
     ref GameObject getRandomGroup(ref int pillarCount) {

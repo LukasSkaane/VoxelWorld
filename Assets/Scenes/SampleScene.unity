@@ -371,7 +371,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 800034920}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 16, y: 0, z: 0}
+  m_LocalPosition: {x: 16, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -630,12 +630,10 @@ MonoBehaviour:
   xOffset: 0
   yOffset: 0
   zOffset: 0
-  cursorX: 0
-  cursorY: 0
-  cursorZ: 0
   blockDropCooldown: 0.15
-  gravityCooldown: 0.2
+  gravityCooldown: 0.3
   moveCooldown: 0.2
+  cursor: {x: 0, y: 0, z: 0}
 --- !u!1 &1124960211
 GameObject:
   m_ObjectHideFlags: 0
@@ -726,7 +724,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1124960211}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -1, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -779,6 +777,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pillarCount: 0
   frozenVoxelsBufferLength: 0
+  rock_plate: {fileID: 1731344679491142983, guid: 038491e1e1cb4324e86691bbab42b181, type: 3}
   current: {fileID: 0}
   currentPillars: []
 --- !u!1 &1773107509
@@ -871,7 +870,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1773107509}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 16}
+  m_LocalPosition: {x: -1, y: 0, z: 16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
